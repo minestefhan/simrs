@@ -58,7 +58,9 @@ sudo nano /etc/nginx/nginx.conf
 
 Ubah:
 
-    user user-project;
+   user user-project;
+   limit_req_zone $binary_remote_addr zone=sock:10m rate=10r/s;
+    
 
 Restart:
 

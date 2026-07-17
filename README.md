@@ -674,6 +674,224 @@ php artisan config:cache
 
 ------------------------------------------------------------------------
 
+# E) INSTALASI SSL LET'S ENCRYPT (CERTBOT)
+
+## 1. Install Certbot
+
+```bash
+sudo apt update
+
+sudo apt install -y certbot python3-certbot-nginx
+```
+
+Verifikasi:
+
+```bash
+certbot --version
+```
+
+---
+
+## 2. Pastikan DNS Sudah Mengarah ke Server
+
+Cek:
+
+```bash
+nslookup simrs-grhasia.jogjaprov.go.id
+```
+
+atau
+
+```bash
+dig simrs-grhasia.jogjaprov.go.id
+```
+
+Pastikan IP yang tampil adalah IP Public server.
+
+---
+
+## 3. Pastikan Port Firewall Terbuka
+
+```bash
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+```
+
+Jika menggunakan firewalld
+
+```bash
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
+```
+
+---
+
+## 4. Pastikan Nginx Berjalan
+
+```bash
+sudo nginx -t
+sudo systemctl restart nginx
+sudo systemctl status nginx
+```
+
+---
+
+## 5. Generate SSL
+
+```bash
+sudo certbot certonly \
+    --nginx \
+    -d simrs-grhasia.jogjaprov.go.id
+```
+
+atau jika ingin langsung redirect HTTP ke HTTPS
+
+```bash
+sudo certbot --nginx \
+    -d simrs-grhasia.jogjaprov.go.id
+```
+
+---
+
+## 6. Lokasi Sertifikat
+
+Certbot akan membuat sertifikat pada:
+
+```text
+/etc/letsencrypt/live/simrs-grhasia.jogjaprov.go.id/
+```
+
+Berisi:
+
+```text
+fullchain.pem
+privkey.pem
+chain.pem
+cert.pem
+```
+
+---
+
+## 7. Konfigurasi SSL pada Nginx
+
+Edit:
+
+```bash
+sudo nano /etc/nginx/conf.d/default.conf
+```
+
+Gunakan:
+
+```nginx
+ssl_certificate /etc/letsencrypt/live/simrs-grhasia.jogjaprov.go.id/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/simrs-grhasia.jogjaprov.go.id/privkey.pem;
+ssl_trusted_certificate /etc/letsencrypt/live/simrs-grhasia.jogjaprov.go.id/chain.pem;
+```
+
+---
+
+## 8. Test Konfigurasi
+
+```bash
+sudo nginx -t
+```
+
+Jika berhasil:
+
+```bash
+sudo systemctl reload nginx
+```
+
+---
+
+## 9. Test SSL
+
+```bash
+curl -Iv https://simrs-grhasia.jogjaprov.go.id
+```
+
+atau
+
+```bash
+openssl s_client -connect simrs-grhasia.jogjaprov.go.id:443
+```
+
+---
+
+## 10. Auto Renewal
+
+Cek timer:
+
+```bash
+systemctl list-timers | grep certbot
+```
+
+Test renewal:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+Renew manual:
+
+```bash
+sudo certbot renew
+```
+
+---
+
+## 11. Reload Nginx Setelah Renewal
+
+Buat hook:
+
+```bash
+sudo mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+```
+
+```bash
+sudo nano /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+```
+
+Isi:
+
+```bash
+#!/bin/bash
+
+systemctl reload nginx
+```
+
+Permission:
+
+```bash
+sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/reload-nginx.sh
+```
+
+---
+
+## 12. Verifikasi Sertifikat
+
+```bash
+sudo certbot certificates
+```
+
+Contoh output:
+
+```text
+Certificate Name: simrs-grhasia.jogjaprov.go.id
+Domains: simrs-grhasia.jogjaprov.go.id
+Expiry Date: 2026-10-15
+Certificate Path:
+/etc/letsencrypt/live/simrs-grhasia.jogjaprov.go.id/fullchain.pem
+Private Key Path:
+/etc/letsencrypt/live/simrs-grhasia.jogjaprov.go.id/privkey.pem
+```
+------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------
+
 # E) SSL LET'S ENCRYPT (FREE)
 
 Referensi:\

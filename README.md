@@ -458,9 +458,7 @@ cd /opt/rsj_grhasia/frontend
 
 npm install
 
-pm2 start ./bin/www \
-    --name simrs \
-    -i 2
+pm2 start npm --name simrs -- run run-app
 ```
 
 ---

@@ -445,29 +445,178 @@ sudo service nginx restart
 
 ------------------------------------------------------------------------
 
-# C) PM2 RUNNING
+# C) MENJALANKAN APLIKASI MENGGUNAKAN PM2
 
-## 1) Start aplikasi Node.js
+Pastikan seluruh source code sudah berada di `/opt/rsj_grhasia/`.
 
-``` bash
-cd /opt/project/frontend
-pm2 start "npm run start" --name frontend
+---
 
-cd /opt/project/socket
-pm2 start "npm run start" --name socket
+## 1. Frontend SIMRS (Port 2222)
 
-cd /opt/project/kiosk
-pm2 start "npm run start" --name kiosk
+```bash
+cd /opt/rsj_grhasia/frontend
 
-cd /opt/project/viewer
-pm2 start "npm run start" --name viewer
+npm install
 
-cd /opt/project/ereservasi
-pm2 start "npm run start" --name ereservasi
+pm2 start ./bin/www \
+    --name simrs \
+    -i 2
 ```
 
-``` bash
+---
+
+## 2. Socket.IO (Port 8881)
+
+```bash
+cd /opt/rsj_grhasia/socket
+
+npm install
+
+pm2 start "npm start -- --port 8881" \
+    --name socket
+```
+
+Apabila menggunakan file server langsung:
+
+```bash
+pm2 start server.js \
+    --name socket \
+    -- --port 8881
+```
+
+---
+
+## 3. Kiosk (Port 2224)
+
+```bash
+cd /opt/rsj_grhasia/kiosk
+
+npm install
+
+pm2 start "ng serve --host 0.0.0.0 --port 2224" \
+    --name kiosk
+```
+
+---
+
+## 4. Viewer (Port 4300)
+
+```bash
+cd /opt/rsj_grhasia/viewer
+
+npm install
+
+pm2 start "ng serve --host 0.0.0.0 --port 4300" \
+    --name viewer
+```
+
+---
+
+## 5. E-Reservasi (Port 4200)
+
+```bash
+cd /opt/rsj_grhasia/e-reservasi
+
+npm install
+
+pm2 start "ng serve --host 0.0.0.0 --port 4200" \
+    --name e-reservasi
+```
+
+---
+
+## 6. Melihat Status Service
+
+```bash
+pm2 list
+```
+
+---
+
+## 7. Monitoring Log
+
+```bash
+pm2 logs
+```
+
+atau
+
+```bash
+pm2 logs simrs
+pm2 logs socket
+pm2 logs kiosk
+pm2 logs viewer
+pm2 logs e-reservasi
+```
+
+---
+
+## 8. Restart Service
+
+```bash
+pm2 restart simrs
+pm2 restart socket
+pm2 restart kiosk
+pm2 restart viewer
+pm2 restart e-reservasi
+```
+
+Restart seluruh service
+
+```bash
+pm2 restart all
+```
+
+---
+
+## 9. Stop Service
+
+```bash
+pm2 stop simrs
+pm2 stop socket
+pm2 stop kiosk
+pm2 stop viewer
+pm2 stop e-reservasi
+```
+
+---
+
+## 10. Hapus Service
+
+```bash
+pm2 delete simrs
+pm2 delete socket
+pm2 delete kiosk
+pm2 delete viewer
+pm2 delete e-reservasi
+```
+
+---
+
+## 11. Simpan Konfigurasi PM2
+
+```bash
 pm2 save
+```
+
+---
+
+## 12. Auto Start Setelah Reboot
+
+```bash
+pm2 startup systemd
+```
+
+Jalankan command yang dihasilkan PM2, kemudian:
+
+```bash
+pm2 save
+```
+
+Verifikasi:
+
+```bash
+systemctl status pm2-user-project
 ```
 
 ------------------------------------------------------------------------
